@@ -1,0 +1,260 @@
+
+#include <iostream>
+using namespace std;
+
+class date {
+protected:
+	int y, m, d;
+public:
+	static int month[13];
+	static char date_alpha[13][10];
+	static char rooz[7][10];
+	static int days;
+	int static leap4jalali;
+
+	char static rooz_j[7][10];
+	int static month_j[13];
+	char static date_alpha_j[13][15];
+
+	date(int a = 1900, int b = 1, int c = 1) {
+
+		y = a; m = b; d = c;
+	}
+
+	void get_date() {
+		do {
+			cout << "Enter year = ";
+			cin >> y;
+		} while (y < 1900);
+		do {
+			cout << "Enter month = ";
+			cin >> m;
+		} while (m < 1 || m > 12);
+		int last = month[m];
+		do {
+			cout << "Enter day = ";
+			cin >> d;
+			if (m == 2 && y % 4 == 0 && y % 100 != 0) last++;
+			if (m == 2 && y % 100 == 0 && y % 400 == 0) last++;
+		} while (d < 1 || d > last);
+
+	}
+
+	int date_to_day() {
+		int counter = 0;
+		for (int i = 1900; i < y; i++) {
+			if (i % 4 == 0 && i % 100 != 0) counter++;
+			if (i % 100 == 0 && i % 400 == 0) counter++;
+		}
+
+		int c = 0;
+		for (int i = 1; i < m; i++) {
+			c += month[i];
+			if (i == 2 && y % 4 == 0 && y % 100 != 0) c++;
+			if (i == 2 && y % 100 == 0 && y % 400 == 0) c++;
+		}
+		days = ((y - 1900 - counter) * 365) + (counter * 366) + c + (d - 1); // (d - 1) because last day is not including
+
+		return days;
+
+		
+	}
+
+
+	void show() {
+
+		cout << "\n\n" << y << "/" << date_alpha[m] << "/" << d << "--->" << rooz[days % 7] << "\n\n";
+
+	}
+
+	void show_day() {
+		cout << "\n\n" << y << "/" << m << "/" << rooz[days % 7] << "\n\n";
+		cout << "\n\n" << days << " days after 1900/1/1\n\n";
+	}
+
+	void day_to_date( ) {
+		int counter = 0; 
+		int sal = 0;
+		int first_day = d;
+
+		for (int i = 1900; i < (d / 365) + 1900; i++) {
+
+	    	if (i % 4 == 0 && i % 100 != 0) counter++;
+		    if (i % 100 == 0 && i % 400 == 0) counter++;
+		}
+		int rest = 0;
+		sal = (d-counter) / 365;
+		rest = (d-counter) % 365 ;
+		
+		y = 1900 + sal;
+			
+		int p=1;
+		rest += 1;
+		for (p; month[p] < rest; p++) {
+			if (y % 4 == 0 && y % 100 != 0 && p == 2) rest--;
+			if (y % 100 == 0 && y % 400 == 0 && p == 2) rest--;
+			rest -= month[p];
+		
+		}
+		m = p;
+		d = rest;
+		cout << "\n\n" << y << "/" << date_alpha[p] << "("<<p<<")" << "/" << d << "   " << rooz[first_day%7] << "\n\n";
+	}
+
+	void day2date(int a=0 ) {
+
+		d = a; 
+
+		int first_day = d;
+		int counter = 0;
+		int sal = 0;
+		for (int i = 1900; i < (d / 365) + 1900; i++) {
+
+			if (i % 4 == 0 && i % 100 != 0) counter++;
+			if (i % 100 == 0 && i % 400 == 0) counter++;
+		}
+		int rest = 0;
+		sal = (d - counter) / 365;
+		rest = (d - counter) % 365;
+
+		y = 1900 + sal;
+
+		int p = 1;
+		rest += 1; //for being the last day
+		for (p; month[p] < rest; p++) {
+			if (y % 4 == 0 && y % 100 != 0 && p == 2) rest-=1;
+			if (y % 100 == 0 && y % 400 == 0 && p == 2) rest-=1;
+			rest -= month[p];
+
+		}
+		m = p;
+		d = rest;
+		//cout << "\n\n" << y << "/" << date_alpha[p] << "(" << p << ")" << "/" << d << "   " << rooz[first_day % 7] << "\n\n";
+		
+	}
+	
+	void get_day() {
+
+		cout << "\nEnter number of your days after 1900/1/1 ~~~> ";
+		cin >> d;
+	}
+
+date operator+=(int a) {
+	day2date(date_to_day() + a);
+		return *this;
+	}
+
+date operator-=(int a) {
+	day2date(date_to_day() - a);
+	return *this;
+}
+
+date operator+(int a) {
+	day2date(date_to_day() + a);
+	return *this;
+}
+
+date operator-(date a) {
+	day2date( abs(date_to_day() - a.date_to_day()) );
+	return *this;
+}
+	
+bool operator>(date a) {
+	return (date_to_day() > a.date_to_day());
+}
+
+bool operator<(date a) {
+	return (date_to_day() < a.date_to_day());
+}
+
+bool operator>=(date a) {
+	return (date_to_day() >= a.date_to_day());
+}
+
+bool operator<=(date a) {
+	return (date_to_day() <= a.date_to_day());
+}
+
+bool operator!=(date a) {
+	return (date_to_day() != a.date_to_day());
+}
+
+bool operator==(date a) {
+	return (date_to_day() == a.date_to_day());
+}
+
+
+void convert_2_jalali() {    // hamantor ke mabda miladi 1900/1/1 bod mabda shamsi ro migirim 1278/1/1
+
+	for (int i = 1900; i < y; i++) {
+		if (i % 100 == 0 && i % 400 != 0) leap4jalali++;
+
+	}
+	
+	int a = date_to_day();
+	d = a + 286; //berese be mabda miladimon
+
+	int counter = 0;
+	int sal = 0;
+	int first_day = d;
+
+
+	for (int i = 1278; i < (d / 365) + 1278; i++) {
+
+		if (i % 4 == 0) counter++;
+	}
+	int rest = 0;
+	sal = (d - counter) / 365;
+	rest = (d - counter) % 365;
+
+	y = 1278 + sal;
+
+	int p = 1;
+	rest += (leap4jalali + 1);
+	
+	for (p; month_j[p] < rest; p++) {
+		if (y % 4 == 0 && p == 2) rest--;
+		rest -= month_j[p];
+
+	}
+
+	m = p;
+	d = rest;
+	cout << "\n\n" << y << "/" << date_alpha_j[p] << "(" << p << ")" << "/" << d << "   " << rooz_j[first_day % 7] << "\n\n";
+}
+
+
+
+};
+
+int date::days = 0;
+char date::rooz[7][10] = { "Monday" , "Tuesday" , "Wednesday" , "Thursday" , "Friday" , "Saturday" , "Sunday" };
+int date::month[13] = { 0,31,28,31,30,31,30,31,31,30,31,30,31 };
+char date::date_alpha[13][10] = { "nth" , "january" , "febaury" , "march" , "april", "may", "june", "july", "agust", "september", "octobr" , "november", "december" };
+int date::leap4jalali = 0;
+char date::rooz_j[7][10] = { "3shanbe" , "4shanbe" , "5shanbe" , "Jome" , "Shanbe" , "1shanbe" , "2shanbe" };
+int date::month_j[13] = { 0,31,31,31,31,31,31,30,30,30,30,30,29 };
+char date::date_alpha_j[13][15] = { "nth" , "Farvardin", "Ordibehesht", "Khordad", "Tir", "Mordad", "Shahrivar", "Mehr" , "Aban", "Azar" , "Dey" , "Bahman" , "Isfand" };
+
+
+
+int main()
+{
+	date d, d1(2014, 5, 12), d2(2200, 10, 1) , BD(1997,1,11);
+	d.get_date();
+	d.date_to_day();
+	d.show_day();
+	cout << "---------------------------------------------------------";
+	d.get_day();
+	d.day_to_date();
+	d.show();
+	cout << "---------------------------------------------------------";
+	d1 += 50;
+	d1.show();
+	cout << "---------------------------------------------------------";
+	d = d2 - d1;
+	d.show();
+	cout << "---------------------------------------------------------";
+	BD.convert_2_jalali();
+	
+}
